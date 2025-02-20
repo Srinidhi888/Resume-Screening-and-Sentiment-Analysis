@@ -6,6 +6,10 @@ from sentence_transformers import SentenceTransformer, util
 from transformers import pipeline
 import os
 import time
+import os
+
+os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"  
+os.environ["STREAMLIT_WATCH_FILES"] = "false" 
 
 
 nlp = spacy.load("en_core_web_sm")
