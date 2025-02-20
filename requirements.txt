@@ -7,9 +7,9 @@ transformers
 pymupdf
 openpyxl
 spacy-lookups-data
-torch==2.0.0
-torchvision==0.15.0
-torchaudio==2.0.0
+torch
+torchvision
+torchaudio
 markdown-it-py==2.2.0
 rich==13.3.5
 pygments==2.15.1
