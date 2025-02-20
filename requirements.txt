@@ -1,8 +1,0 @@
-streamlit
-pandas
-numpy
-sentence-transformers
-spacy
-transformers
-pymupdf
-openpyxl
