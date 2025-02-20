@@ -7,13 +7,13 @@ from transformers import pipeline
 import os
 import time
 import subprocess
+import sys
 
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
-    subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
+    subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
     nlp = spacy.load("en_core_web_sm")
-
 
 try:
     import openpyxl
