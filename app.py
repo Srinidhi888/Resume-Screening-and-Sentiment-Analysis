@@ -17,7 +17,7 @@ except ImportError:
 
 nlp = spacy.load("en_core_web_sm")
 bert_model = SentenceTransformer("bert-base-nli-mean-tokens")
-sentiment_model = pipeline("sentiment-analysis")
+sentiment_model = pipeline("sentiment-analysis", model="distilbert/distilbert-base-uncased-finetuned-sst-2-english")
 
 def extract_text_from_pdf(uploaded_file):
     """Extract text from an uploaded PDF file (works with any local file)."""
@@ -48,7 +48,7 @@ if resume_option == "Single Resume":
 
     job_description = st.text_area("Paste Job Description")
 
-    if st.button("🔍 Check Resume Match"):
+    if st.button("Check Resume Match"):
         if resume_text and job_description:
             resume_embedding = bert_model.encode(resume_text)
             job_embedding = bert_model.encode(job_description)
@@ -114,7 +114,7 @@ if sentiment_option == "Single Feedback":
     if st.button("Analyze Sentiment"):
         if feedback_text:
             sentiment_result = sentiment_model(feedback_text)
-            st.write(f"🎭 Sentiment: **{sentiment_result[0]['label']}**")
+            st.write(f"Sentiment: **{sentiment_result[0]['label']}**")
             st.write(f"Confidence: **{sentiment_result[0]['score']:.2f}**")
         else:
             st.warning("Please enter employee feedback!")
