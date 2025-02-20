@@ -9,3 +9,5 @@ openpyxl
 torch
 torchvision
 torchaudio
+spacy-lookups-data
+
