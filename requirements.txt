@@ -1,17 +1,17 @@
-
-numpy
-streamlit
+numpy  
 pandas
-numpy
+streamlit
 sentence-transformers
 spacy
 transformers
 pymupdf
 openpyxl
 spacy-lookups-data
-torch==2.2.0+cpu
-torchvision==0.17.0+cpu
-torchaudio==2.2.0+cpu
+torch
+torchvision
+torchaudio
+-f https://download.pytorch.org/whl/cpu.html
+
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
--f https://download.pytorch.org/whl/torch_stable.html
+
 
