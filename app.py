@@ -14,7 +14,7 @@ try:
     import numpy
 except ImportError:
     subprocess.run([sys.executable, "-m", "pip", "install", "numpy"])
-    import numpy  # ✅ Re-import NumPy after installation
+    import numpy  
 
 os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"  
 os.environ["STREAMLIT_WATCH_FILES"] = "false" 
