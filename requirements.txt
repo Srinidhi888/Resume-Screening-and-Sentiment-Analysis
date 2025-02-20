@@ -11,4 +11,6 @@ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0
 torch==2.2.0
 torchvision==0.17.0
 torchaudio==2.2.0
-
+markdown-it-py==2.2.0
+rich==13.3.5
+pygments==2.15.1
