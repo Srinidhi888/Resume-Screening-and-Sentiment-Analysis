@@ -1,3 +1,7 @@
+import os
+os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"
+os.environ["STREAMLIT_WATCH_FILES"] = "false"
+
 import streamlit as st
 import pandas as pd
 import spacy
@@ -10,9 +14,6 @@ import os
 import subprocess
 import sys
 
-os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"  
-
-os.environ["STREAMLIT_WATCH_FILES"] = "false"
 
 try:
     import numpy
