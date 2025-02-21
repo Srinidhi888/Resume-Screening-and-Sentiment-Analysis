@@ -1,6 +1,5 @@
 import os
 
-# ✅ Fix PyTorch class registration issue
 os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"
 os.environ["STREAMLIT_WATCH_FILES"] = "false"
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
@@ -15,14 +14,12 @@ import time
 import subprocess
 import sys
 
-# ✅ Ensure NumPy is installed
 try:
     import numpy
 except ImportError:
     subprocess.run([sys.executable, "-m", "pip", "install", "numpy"])
     import numpy  
 
-# ✅ Load NLP Models
 nlp = spacy.load("en_core_web_sm")
 
 try:
@@ -41,10 +38,8 @@ def extract_text_from_pdf(uploaded_file):
         text += page.get_text("text") + "\n"
     return text
 
-# ✅ Streamlit UI Title
 st.title("AI-Powered Resume Screening & Sentiment Analysis")
 
-# 📜 **Resume Screening Section**
 st.subheader("📜 Resume Screening")
 
 resume_option = st.radio("Choose Resume Input Method", ("Single Resume", "Batch Processing (CSV/Excel)"))
@@ -65,16 +60,12 @@ if resume_option == "Single Resume":
 
     if st.button("Check Resume Match"):
         if resume_text and job_description:
-            # **Compute Similarity**
             resume_embedding = bert_model.encode(resume_text)
             job_embedding = bert_model.encode(job_description)
             similarity = util.pytorch_cos_sim(resume_embedding, job_embedding).item() * 100
-
-            # **Extract Skills using SpaCy**
             doc = nlp(resume_text)
             extracted_skills = [ent.text for ent in doc.ents if ent.label_ == "ORG"]  # Modify based on model training
-            
-            # **Display Results**
+
             st.success(f"✅ Resume Match Score: {similarity:.2f}%")
             st.write("💡 **Extracted Skills:**", ", ".join(extracted_skills) if extracted_skills else "No skills found")
         else:
@@ -86,13 +77,10 @@ if resume_option == "Batch Processing (CSV/Excel)":
     if uploaded_file:
         file_extension = uploaded_file.name.split(".")[-1]
 
-        # Load file into a DataFrame
         if file_extension == "csv":
             df = pd.read_csv(uploaded_file)
         elif file_extension == "xlsx":
             df = pd.read_excel(uploaded_file, engine="openpyxl")
-
-        # **Check if required columns exist**
         required_columns = {"Name", "Resume_Text"}
         if not required_columns.issubset(df.columns):
             st.error(f"⚠ The uploaded file must contain the following columns: {', '.join(required_columns)}")
@@ -111,7 +99,6 @@ if resume_option == "Batch Processing (CSV/Excel)":
                     resume_embedding = bert_model.encode(resume_text)
                     similarity_score = util.pytorch_cos_sim(resume_embedding, job_embedding).item() * 100
                     
-                    # **Extract Skills**
                     doc = nlp(resume_text)
                     extracted_skills = [ent.text for ent in doc.ents if ent.label_ == "ORG"]
                     
@@ -127,12 +114,10 @@ if resume_option == "Batch Processing (CSV/Excel)":
                 with open("resume_screening_results.xlsx", "rb") as file:
                     st.download_button("📥 Download Results", file, "resume_screening_results.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-# 💬 **Employee Sentiment Analysis Section**
 st.subheader("💬 Employee Sentiment Analysis")
 
 sentiment_option = st.radio("Choose Sentiment Input Method", ("Single Feedback", "Batch Processing (CSV/Excel)"))
 
-# Define Engagement Strategies Based on Sentiment
 def get_engagement_strategy(sentiment_label):
     if sentiment_label == "POSITIVE":
         return "✅ Keep up the good work! Recognize and reward employees to maintain high engagement."
@@ -152,7 +137,6 @@ if sentiment_option == "Single Feedback":
             sentiment_label = sentiment_result[0]['label'].upper()
             confidence_score = sentiment_result[0]['score']
             
-            # Get Recommended Strategy
             engagement_strategy = get_engagement_strategy(sentiment_label)
 
             st.write(f"🎭 Sentiment: **{sentiment_label}**")
