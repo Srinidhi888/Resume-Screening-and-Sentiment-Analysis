@@ -1,7 +1,7 @@
 import os
 
+# ✅ Fix PyTorch class registration issue
 os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"
-
 os.environ["STREAMLIT_WATCH_FILES"] = "false"
 
 import streamlit as st
@@ -33,7 +33,7 @@ bert_model = SentenceTransformer("bert-base-nli-mean-tokens")
 sentiment_model = pipeline("sentiment-analysis", model="distilbert/distilbert-base-uncased-finetuned-sst-2-english")
 
 def extract_text_from_pdf(uploaded_file):
-    """Extract text from an uploaded PDF file (works with any local file)."""
+    """Extract text from an uploaded PDF file."""
     doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")  
     text = ""
     for page in doc:
@@ -73,48 +73,43 @@ if resume_option == "Single Resume":
 
 if resume_option == "Batch Processing (CSV/Excel)":
     uploaded_file = st.file_uploader("Upload Resume File (CSV or Excel)", type=["csv", "xlsx"])
-    
+
     if uploaded_file:
         file_extension = uploaded_file.name.split(".")[-1]
 
+        # Load file into a DataFrame
         if file_extension == "csv":
             df = pd.read_csv(uploaded_file)
         elif file_extension == "xlsx":
             df = pd.read_excel(uploaded_file, engine="openpyxl")
 
-        st.write("📄 Preview of Uploaded Data:")
-        st.dataframe(df.head())  
-        
-        job_description = st.text_area("Paste Job Description for Matching")
+        # **Check if required columns exist**
+        required_columns = {"Name", "Resume_Text"}
+        if not required_columns.issubset(df.columns):
+            st.error(f"⚠ The uploaded file must contain the following columns: {', '.join(required_columns)}")
+        else:
+            st.write("📄 Preview of Uploaded Data:")
+            st.dataframe(df.head())  
 
-        if st.button("📊 Process Resumes"):
-            if job_description:
+            job_description = st.text_area("Paste Job Description for Matching")
+
+            if st.button("📊 Process Resumes"):
                 job_embedding = bert_model.encode(job_description)
                 match_scores = []
 
                 for index, row in df.iterrows():
-                    if "Resume_Text" in df.columns:
-                        resume_text = row["Resume_Text"]
-                    else:
-                        st.error("The uploaded file must contain a 'Resume_Text' column.")
-                        break
-                    
-                    doc = nlp(resume_text)
-                    skills = [ent.text for ent in doc.ents if ent.label_ == "ORG"]
-                    
+                    resume_text = row["Resume_Text"]
                     resume_embedding = bert_model.encode(resume_text)
                     similarity_score = util.pytorch_cos_sim(resume_embedding, job_embedding).item() * 100
-                    
-                    match_scores.append((row["Name"], similarity_score, skills))
-                
-                results_df = pd.DataFrame(match_scores, columns=["Name", "Match Score", "Skills"])
+                    match_scores.append((row["Name"], similarity_score))
+
+                results_df = pd.DataFrame(match_scores, columns=["Name", "Match Score"])
                 results_df = results_df.sort_values(by="Match Score", ascending=False)
-                
+
                 st.success("✅ Resume Screening Completed!")
                 st.dataframe(results_df)
 
                 results_df.to_excel("resume_screening_results.xlsx", index=False, engine="openpyxl")
-
                 with open("resume_screening_results.xlsx", "rb") as file:
                     st.download_button("📥 Download Results", file, "resume_screening_results.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
@@ -163,22 +158,21 @@ if sentiment_option == "Batch Processing (CSV/Excel)":
         elif file_extension == "xlsx":
             df_feedback = pd.read_excel(uploaded_feedback_file, engine="openpyxl")
 
-        st.write("📄 Preview of Uploaded Feedback:")
-        st.dataframe(df_feedback.head())
+        # **Check if required columns exist**
+        if "Feedback" not in df_feedback.columns:
+            st.error("⚠ The uploaded file must contain a column named 'Feedback'.")
+        else:
+            st.write("📄 Preview of Uploaded Feedback:")
+            st.dataframe(df_feedback.head())
 
-        if st.button("📊 Process Feedback"):
-            if "Feedback" not in df_feedback.columns:
-                st.error("The uploaded file must have a column named 'Feedback'")
-            else:
-                sentiment_df = df_feedback.copy()
-                sentiment_df["Sentiment"] = sentiment_df["Feedback"].apply(lambda x: sentiment_model(x)[0]["label"].upper())
-                sentiment_df["Confidence"] = sentiment_df["Feedback"].apply(lambda x: sentiment_model(x)[0]["score"])
-                sentiment_df["Engagement Strategy"] = sentiment_df["Sentiment"].apply(get_engagement_strategy)
+            if st.button("📊 Process Feedback"):
+                df_feedback["Sentiment"] = df_feedback["Feedback"].apply(lambda x: sentiment_model(x)[0]["label"].upper())
+                df_feedback["Confidence"] = df_feedback["Feedback"].apply(lambda x: sentiment_model(x)[0]["score"])
+                df_feedback["Engagement Strategy"] = df_feedback["Sentiment"].apply(get_engagement_strategy)
 
                 st.success("✅ Sentiment Analysis Completed!")
-                st.dataframe(sentiment_df)
+                st.dataframe(df_feedback)
 
-                sentiment_df.to_excel("sentiment_analysis_results.xlsx", index=False, engine="openpyxl")
-
+                df_feedback.to_excel("sentiment_analysis_results.xlsx", index=False, engine="openpyxl")
                 with open("sentiment_analysis_results.xlsx", "rb") as file:
                     st.download_button("📥 Download Sentiment Results", file, "sentiment_analysis_results.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
