@@ -10,15 +10,15 @@ import os
 import subprocess
 import sys
 
+os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"  
+
+os.environ["STREAMLIT_WATCH_FILES"] = "false"
+
 try:
     import numpy
 except ImportError:
     subprocess.run([sys.executable, "-m", "pip", "install", "numpy"])
     import numpy  
-
-os.environ["TORCH_USE_RTLD_GLOBAL"] = "YES"  
-os.environ["STREAMLIT_WATCH_FILES"] = "false" 
-
 
 nlp = spacy.load("en_core_web_sm")
 
