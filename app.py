@@ -8,9 +8,7 @@ import spacy
 import fitz 
 from sentence_transformers import SentenceTransformer, util
 from transformers import pipeline
-import os
 import time
-import os
 import subprocess
 import sys
 
